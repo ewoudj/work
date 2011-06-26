@@ -130,10 +130,9 @@ var renderInterface = function(request){
 				tag: 'p', controlValue: currentTask ? currentTask.title : 'No current task selected'
 			},
 			createInputControls('All tasks:', taskItems, 'setTasks'),
-			createInputControls('Exempt domains:', 'test', 'setExemptDomains'),
-			createInputControls('Recently refused domains:', 'test'),
 			createInputControls('Random Motivation:', randomMotivation, 'setExemptDomains'),
-			createInputControls('Exempt domains:', 'test', 'setExemptDomains')]
+			createInputControls('Exempt domains:', 'test', 'setExemptDomains'),
+			createInputControls('Recently refused domains:', 'test')]
 		}]
 	});
 	return c.render();
