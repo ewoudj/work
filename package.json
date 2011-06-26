@@ -14,7 +14,8 @@
   "main": "app.js",
   "engines": { "node": "*" }, 
   "dependencies": {
-    "formidable@latest": "*"
+    "formidable@latest": "*",
+    "node-static": "*"
   },
   "licenses" : [ { "type" : "MIT"
     , "url" : "http://github.com/ewoudj/work§/raw/master/LICENSE"

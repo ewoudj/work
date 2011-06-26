@@ -1,6 +1,7 @@
 var proxyTamper = require('./lib/proxy-tamper');
 var control = require('./../control/lib/control').control;
 var formidable = require('formidable');
+var nodestatic = require('node-static');
 
 var proxyPort = 30972;
 var allRegex = /.*/;
@@ -24,6 +25,8 @@ var tasks =[{
 
 var randomMotivation = "There might be class mates more successfull than you.\nJames told you it could not be done.\nDo not let the BMW drivers win!";
 
+var fileServer = new nodestatic.Server('./public');
+
 var proxy = require('./lib/proxy-tamper').start({ port: proxyPort }, function(p){
 	p.tamper(/.*/, function (request) {
 		if(request && request.url){
@@ -44,10 +47,16 @@ var proxy = require('./lib/proxy-tamper').start({ port: proxyPort }, function(p)
 					});
 				}
 				else {
-					request.response.writeHead(200, {});
-					request.response.write(renderInterface(request), 'utf8');
-					request.response.end();
-					request.handled = true;
+					if(request.url.indexOf('/resources')===0){
+						request.handled = true;
+						fileServer.serve(request.innerRequest, request.response);
+					}
+					else{
+						request.response.writeHead(200, {});
+						request.response.write(renderInterface(request), 'utf8');
+						request.response.end();
+						request.handled = true;
+					}
 				}
 			}
 		}
@@ -107,7 +116,11 @@ var renderInterface = function(request){
 			items: [{
 				tag: 'title',
 				controlValue: 'BACK TO WORK!'
-			}]
+			},
+			{tag: 'script', attributes: {
+				type: 'text/javascript',
+				src: '/resources/script/client.js'
+			}}]
 		},{
 			tag: 'body',
 			items:[{
