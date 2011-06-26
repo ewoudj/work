@@ -1,5 +1,6 @@
 var proxyTamper = require('./lib/proxy-tamper');
 var control = require('./../control/lib/control').control;
+var formidable = require('formidable');
 
 var proxyPort = 30972;
 var allRegex = /.*/;

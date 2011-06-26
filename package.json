@@ -1,0 +1,23 @@
+{
+  "name": "work",
+  "description": "Tool to keep web developers focussed on their work and not be distracted by the web.",
+  "version": "0.0.1",
+  "author": "Ewoud van den Boom <ewoudj@gmail.com>",
+  "contributors": [ 
+    { "name": "Ewoud van den Boom", "email": "ewoudj@gmail.com" }
+  ],
+  "keywords": ["Productivity", "Distraction", "Proxy"],
+  "repository" : { 
+    "type" : "git"
+  , "url" : "git://github.com/ewoudj/work.git"
+  },
+  "main": "app.js",
+  "engines": { "node": "*" }, 
+  "dependencies": {
+    "formidable@latest": "*"
+  },
+  "licenses" : [ { "type" : "MIT"
+    , "url" : "http://github.com/ewoudj/work§/raw/master/LICENSE"
+    }
+  ]
+}
