@@ -34,10 +34,21 @@ var proxy = require('./lib/proxy-tamper').start({ port: proxyPort }, function(p)
 				isExempt = exemptDomains[domainName];
 			}
 			if(!isExempt){
-				request.response.writeHead(200, {});
-				request.response.write(renderInterface(request), 'utf8');
-				request.response.end();
-				request.handled = true;
+				if(request.method === 'POST'){
+					var form = new formidable.IncomingForm();
+					request.handled = true;
+					form.parse(request.innerRequest, function(err, fields, files) {
+						request.response.writeHead(200, {'content-type': 'text/plain'});
+						request.response.write('received upload:\n\n');
+						request.response.end();
+					});
+				}
+				else {
+					request.response.writeHead(200, {});
+					request.response.write(renderInterface(request), 'utf8');
+					request.response.end();
+					request.handled = true;
+				}
 			}
 		}
 	});
@@ -52,7 +63,7 @@ var createInputControls = function(title, value, postMethod){
 		},
 		items: [
 		    {tag: 'h2', controlValue: title},
-	        {tag: 'textarea', controlValue: value}, 
+	        {tag: 'textarea', controlValue: value, attributes:{name: 'value'}}, 
 		    {tag: 'input', attributes:{type: 'submit', value: 'Submit'}}
 	    ]
 	};
