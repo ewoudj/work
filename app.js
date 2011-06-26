@@ -113,14 +113,11 @@ var renderInterface = function(request){
 		isRootControl: true,
 		items: [{
 			tag: 'head',
-			items: [{
-				tag: 'title',
-				controlValue: 'BACK TO WORK!'
-			},
-			{tag: 'script', attributes: {
-				type: 'text/javascript',
-				src: '/resources/script/client.js'
-			}}]
+			items: [
+			    {tag: 'title', controlValue: 'BACK TO WORK!'},
+				{tag: 'script', attributes: {type: 'text/javascript', src: '/resources/script/client.js'}},
+				{tag: 'link', voidElement: true, attributes: {rel: 'stylesheet', href: '/resources/css/style.css'}}
+			]
 		},{
 			tag: 'body',
 			items:[{
