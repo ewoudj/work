@@ -7,6 +7,20 @@ var proxyPort = 30972;
 var allRegex = /.*/;
 var domainRegEx = /:\/\/(.[^\/]+)/;
 
+var userConfig = {
+	tasks: '',
+	motivation: '',
+	exemptDomains: ''
+};
+
+var getConfig = function(callback){
+	
+};
+
+var setConfig = function(callback){
+	
+};
+
 var exemptDomains = {
 	'google.nl': true,
 	'google.com': true,
@@ -63,17 +77,11 @@ var proxy = require('./lib/proxy-tamper').start({ port: proxyPort }, function(p)
 	});
 });
 
-var createInputControls = function(title, value, postMethod){
+var createInputControls = function(title, value, id){
 	return {
-		tag: 'form',
-		attributes:{ 
-			action: 'http://localhost:' + proxyPort + '/index.html?method=' + postMethod,
-			method: 'post'
-		},
 		items: [
 		    {tag: 'h2', controlValue: title},
-	        {tag: 'textarea', controlValue: value, attributes:{name: 'value'}}, 
-		    {tag: 'input', attributes:{type: 'submit', value: 'Submit'}}
+	        {tag: 'textarea', controlValue: value, attributes:{id: id,name: 'value'}}, 
 	    ]
 	};
 };
@@ -119,7 +127,7 @@ var renderInterface = function(request){
 				{tag: 'link', voidElement: true, attributes: {rel: 'stylesheet', href: '/resources/css/style.css'}}
 			]
 		},{
-			tag: 'body',
+			tag: 'body', attributes:{onload: 'loadHandler()'},
 			items:[{
 				tag: 'h1', controlValue: 'BACK TO WORK!'
 			},{
@@ -129,10 +137,10 @@ var renderInterface = function(request){
 			},{
 				tag: 'p', controlValue: currentTask ? currentTask.title : 'No current task selected'
 			},
-			createInputControls('All tasks:', taskItems, 'setTasks'),
-			createInputControls('Random Motivation:', randomMotivation, 'setExemptDomains'),
-			createInputControls('Exempt domains:', 'test', 'setExemptDomains'),
-			createInputControls('Recently refused domains:', 'test')]
+			createInputControls('All tasks:', taskItems, 'tasks'),
+			createInputControls('Random Motivation:', randomMotivation, 'motivation'),
+			createInputControls('Exempt domains:', 'test', 'exemptDomains'),
+			createInputControls('Recently refused domains:', 'test', 'refusedDomains')]
 		}]
 	});
 	return c.render();

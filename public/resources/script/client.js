@@ -7,7 +7,12 @@ var postData = function(url, data, callback){
 	http.setRequestHeader("Connection", "close");
 	http.onreadystatechange = function() {
 		if(http.readyState == 4 && http.status == 200) {
-			callback(http.responseText);
+			if(callback){
+				callback(http.responseText);
+			}
+		}
+		if(http.readyState == 4 && http.status != 200) {
+			alert('Failed to persist your changes!');
 		}
 	};
 	http.send(params);
@@ -25,7 +30,11 @@ setInterval( function(){
 	for(var name in controls){
 		if(controls[name].value !== controlsLastValue[name]){
 			controlsLastValue[name] = controls[name].value;
-			alert('change ' + name);
+			postData('/' + controls[name].id, controls[name].value, function(result){alert(result);});
 		}
 	}
 }, 1000);
+
+var loadHandler = function(){
+	watchControl( document.getElementById('tasks') );
+};
