@@ -15,10 +15,11 @@
   "engines": { "node": "*" }, 
   "dependencies": {
     "formidable@latest": "*",
-    "node-static": "*"
+    "node-static": "*",
+    "sanitizer": "*"
   },
   "licenses" : [ { "type" : "MIT"
-    , "url" : "http://github.com/ewoudj/work§/raw/master/LICENSE"
+    , "url" : "http://github.com/ewoudj/workï¿½/raw/master/LICENSE"
     }
   ]
 }

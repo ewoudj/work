@@ -1,18 +1,17 @@
-var postData = function(url, data, callback){
+var postData = function(url, data, resultId, callback){
 	var http = new XMLHttpRequest();
 	var params = 'value=' + data;
 	http.open('POST', url, true);
 	http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	http.setRequestHeader("Content-length", params.length);
-	http.setRequestHeader("Connection", "close");
 	http.onreadystatechange = function() {
 		if(http.readyState == 4 && http.status == 200) {
 			if(callback){
-				callback(http.responseText);
+				callback(null, resultId, http.responseText);
 			}
 		}
 		if(http.readyState == 4 && http.status != 200) {
 			alert('Failed to persist your changes!');
+			callback('Failed to persist your changes!', resultId, http.responseText);
 		}
 	};
 	http.send(params);
@@ -20,21 +19,35 @@ var postData = function(url, data, callback){
 
 var controlsLastValue = {};
 var controls = {};
+var handlers = {};
 
-var watchControl = function(control){
-	controlsLastValue[control.name] = control.value;
-	controls[control.name] = control;
+var watchControl = function(control, handler){
+	controlsLastValue[control.id] = control.value;
+	controls[control.id] = control;
+	handlers[control.id] = handler;
 };
 
 setInterval( function(){
 	for(var name in controls){
 		if(controls[name].value !== controlsLastValue[name]){
 			controlsLastValue[name] = controls[name].value;
-			postData('/' + controls[name].id, controls[name].value, function(result){alert(result);});
+			postData('/' + controls[name].id, controls[name].value, name, function(err, resultId, result){
+				if(handlers[resultId]){
+					handlers[resultId](result);
+				}
+			});
 		}
 	}
 }, 1000);
 
+
+
 var loadHandler = function(){
-	watchControl( document.getElementById('tasks') );
+	var taskControl = document.getElementById('tasks');
+	watchControl( taskControl , function(newValue){
+		var currentTaskElement = document.getElementById('currentTask');
+		currentTaskElement.innerText = newValue.split('\n')[0];
+	});
+	watchControl( document.getElementById('motivation') );
+	watchControl( document.getElementById('exemptDomains') );
 };

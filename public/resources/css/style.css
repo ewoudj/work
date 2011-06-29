@@ -8,3 +8,8 @@ h1 {
 	text-align: center;
 }
 
+textarea {
+	width: 480px;
+	height: 200px;
+}
+
