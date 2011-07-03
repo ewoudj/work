@@ -1,15 +1,62 @@
 body {
    font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
    font-weight: 300;
+   text-align: center;
 }
 
 h1 {
 	font-size: 72px;
 	text-align: center;
+	margin: 64px 0px 10px 0px;
 }
 
 textarea {
 	width: 480px;
 	height: 200px;
+}
+
+.maincontainer {
+	width: 600px;
+	position: relative;
+	display: inline-block;
+	text-align: center;
+}
+
+.inputContainer{
+	display: none;
+}
+
+.titleTextArea {
+	width: 500px;
+	display: inline-block;
+	text-align: left;
+}
+
+.titleTextArea h2 {
+	margin-top: 32px;
+	margin-bottom: 5px;
+}
+
+.distractionButton {
+	margin-top: 128px;
+}
+
+.currentTaskLabel {
+	font-size: 24px;
+	font-weight: bold;
+	display: inline-block;
+	margin-bottom: 0px;
+}
+
+.currentTask {
+	font-size: 24px;
+	display: inline-block;
+	margin-left: 10px;
+	margin-top: 0px;
+}
+
+.motiviation {
+	margin-top: 0px;
+	margin-bottom: 64px;
 }
 

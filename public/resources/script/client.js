@@ -40,8 +40,6 @@ setInterval( function(){
 	}
 }, 1000);
 
-
-
 var loadHandler = function(){
 	var taskControl = document.getElementById('tasks');
 	watchControl( taskControl , function(newValue){
@@ -50,4 +48,17 @@ var loadHandler = function(){
 	});
 	watchControl( document.getElementById('motivation') );
 	watchControl( document.getElementById('exemptDomains') );
+};
+
+var distractionHandler = function(){
+	var inputContainer = document.getElementById('inputcontainer');
+	var button = document.getElementById('toggleInputButton');
+	if(inputContainer.style.display !== 'block'){
+		inputContainer.style.display = 'block';
+		
+	}
+	else{
+		inputContainer.style.display = 'none';
+	}
+	
 };
