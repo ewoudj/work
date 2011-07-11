@@ -55,10 +55,11 @@ var distractionHandler = function(){
 	var button = document.getElementById('toggleInputButton');
 	if(inputContainer.style.display !== 'block'){
 		inputContainer.style.display = 'block';
-		
+		button.innerText = 'Hide options';
 	}
 	else{
 		inputContainer.style.display = 'none';
+		button.innerText = 'Show options';
 	}
 	
 };
