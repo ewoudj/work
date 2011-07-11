@@ -11,9 +11,8 @@ var domainRegEx = /:\/\/(.[^\/]+)/;
 var configPath = __dirname + '/user_settings';
 var configFilePath = configPath + '/config.js';
 var userConfig = null;
-var exemptDomains = null;
 var fileServer = new nodestatic.Server('./public');
-
+var refusedDomains = '';
 /*
  * From npm/lib/utils/graceful-fs.js
  */
@@ -103,6 +102,9 @@ var isDomainExempt = function(url, exemptDomains){
 	if(url.indexOf('/')!==0){
 		var domainName = domainNameFromUrl(url);
 		result = (exemptDomains.indexOf(domainName) !== -1);
+		if(refusedDomains.indexOf(domainName) === -1){
+			refusedDomains = (refusedDomains + (refusedDomains ? '\n' : '')) + domainName;
+		}
 	}
 	return result;
 };
@@ -112,48 +114,79 @@ var proxy = require('./lib/proxy-tamper').start({ port: proxyPort }, function(p)
 		if(request && request.url){
 			getConfig(function(config){
 				if(!isDomainExempt(request.url, config.exemptDomains)){
-					request.handled = true;
-					if(request.method === 'POST'){
-						// User changing the config
-						var form = new formidable.IncomingForm();
-						form.parse(request.innerRequest, function(err, fields, files) {
-							var property = request.url.substr( request.url.lastIndexOf("/") + 1 );
-							config[property] = fields.value;
-							setConfig(config, function(setResult){
-								request.response.writeHead(200, {'content-type': 'text/plain'});
-								request.response.write(config[property]);
-								request.response.end();
-							});
-						});
-					}
-					else {
-						if(request.url.indexOf('/resources')!==-1){
-							// Request for static file
-							fileServer.serve(request.innerRequest, request.response);
-						}
-						else{
-							// Render the user interface
-							request.response.writeHead(200, {});
-							request.response.write(renderInterface(request, config), 'utf8');
-							request.response.end();
-						}
-					}
+					handleUnexemptDomain(request, config);
 				}
 			});
 		}
 	});
 });
 
-var createInputControls = function(title, value, id){
-	return {
+var handleUnexemptDomain = function(request, config){
+	request.handled = true;
+	if(request.method === 'POST'){
+		handleFormPost(request, config);
+	}
+	else {
+		handleFormGet(request, config);
+	}
+};
+
+var textPlain = {'content-type': 'text/plain'};
+
+var handleFormPost = function(request, config){
+	// User changing the config
+	var form = new formidable.IncomingForm();
+	try{
+		form.parse(request.innerRequest, function(err, fields, files) {
+			if(err){
+				write(request, 500, 'Form parser returned an error: ' + err, textPlain);
+			}
+			else {
+				var property = request.url.substr( request.url.lastIndexOf("/") + 1 );
+				config[property] = fields.value;
+				setConfig(config, function(setResult){
+					write(request, 200, config[property], textPlain);
+				});
+			}
+		});
+	}
+	catch(formException){
+		write(request, 500, 'Parse form failed: ' + formException, textPlain);
+	}
+};
+
+var write = function(request, code, content, headers, encoding){
+	request.response.writeHead(code || 200, headers || {});
+	request.response.write(content, encoding);
+	request.response.end();
+};
+
+
+var handleFormGet = function(request, config){
+	if(request.url.indexOf('/resources')!==-1){
+		// Request for static file
+		fileServer.serve(request.innerRequest, request.response);
+	}
+	else{
+		// Render the user interface
+		write(request, 200, renderInterface(request, config), {}, 'utf8');
+	}
+};
+
+var createInputControls = function(title, value, id, readonly){
+	var result = {
 		attributes: {
 			"class": 'titleTextArea'
 		},
 		items: [
 		    {tag: 'h2', controlValue: title},
-	        {tag: 'textarea', controlValue: value, attributes:{id: id,name: 'value'}}, 
+	        {tag: 'textarea', controlValue: value, attributes:{id: id, name: 'value'}}, 
 	    ]
 	};
+	if(readonly){
+		result.items[1].attributes.readonly = 'readonly';
+	}
+	return result;
 };
 
 var domainNameFromUrl = function(url){
@@ -209,7 +242,7 @@ var renderInterface = function(request, config){
 						createInputControls('All tasks:', config.tasks, 'tasks'),
 						createInputControls('Random Motivation:', config.motivation, 'motivation'),
 						createInputControls('Exempt domains:', config.exemptDomains, 'exemptDomains'),
-						createInputControls('Recently refused domains:', 'test', 'refusedDomains'),
+						createInputControls('Recently refused domains:', refusedDomains, 'refusedDomains', true),
 						{tag: 'button', controlValue: 'Allow 30 seconds of internet access', attributes:{id: 'allowInternetButton', "class":'distractionButton', onclick: 'distractionHandler()'}}
 					]}
 					
