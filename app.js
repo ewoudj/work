@@ -67,7 +67,7 @@ var getConfig = function(callback){
 			else {
 				userConfig = getDefaultConfig();
 			}
-			callback(userConfig);
+			callback( addBehavior( userConfig ));
 		});
 	}
 	else{
@@ -86,6 +86,29 @@ var getDefaultConfig = function(){
 					'You will encounter many distractions and many temptations to put your goal aside: The security of a job, a wife who wants kids, whatever. But if you hang in there, always following your vision, I have no doubt you will succeed. (Larry Flynt)',
 		exemptDomains:	'google.com\n' + 'stackoverflow.com'
 	};
+};
+
+var allowAllInternetAccess = false;
+var allowTimeOut = null;
+
+/*
+ * Used to Add behavior to the configuration object after deserialization or instantiation of
+ * that configuration object.
+ * This behavior can be invoked from the client.
+ */
+var addBehavior = function(value){
+	value.allowInternet = function(){
+		allowAllInternetAccess = true;
+		if(allowTimeOut){
+			clearTimeout(allowTimeOut);
+			allowTimeOut = null;
+		}
+		allowTimeOut = setTimeout(function(){
+			allowAllInternetAccess = false;
+			allowTimeOut = null;
+		}, 30000);
+	};
+	return value;
 };
 
 var setConfig = function(newConfig, callback){
@@ -111,7 +134,7 @@ var isDomainExempt = function(url, exemptDomains){
 
 var proxy = require('./lib/proxy-tamper').start({ port: proxyPort }, function(p){
 	p.tamper(/.*/, function (request) {
-		if(request && request.url){
+		if(request && request.url && !allowAllInternetAccess){
 			getConfig(function(config){
 				if(!isDomainExempt(request.url, config.exemptDomains)){
 					handleUnexemptDomain(request, config);
@@ -143,10 +166,16 @@ var handleFormPost = function(request, config){
 			}
 			else {
 				var property = request.url.substr( request.url.lastIndexOf("/") + 1 );
-				config[property] = fields.value;
-				setConfig(config, function(setResult){
-					write(request, 200, config[property], textPlain);
-				});
+				if(typeof config[property] === 'function'){
+					config[property]( fields.value );
+					write(request, 200, 'OK', textPlain);
+				}
+				else {
+					config[property] = fields.value;
+					setConfig(config, function(setResult){
+						write(request, 200, config[property], textPlain);
+					});
+				}
 			}
 		});
 	}
@@ -243,7 +272,7 @@ var renderInterface = function(request, config){
 						createInputControls('Random Motivation:', config.motivation, 'motivation'),
 						createInputControls('Exempt domains:', config.exemptDomains, 'exemptDomains'),
 						createInputControls('Recently refused domains:', refusedDomains, 'refusedDomains', true),
-						{tag: 'button', controlValue: 'Allow 30 seconds of internet access', attributes:{id: 'allowInternetButton', "class":'distractionButton', onclick: 'distractionHandler()'}}
+						{tag: 'button', controlValue: 'Allow 30 seconds of internet access', attributes:{id: 'allowInternetButton', "class":'distractionButton', onclick: 'moreDistractionHandler()'}}
 					]}
 					
 				]}

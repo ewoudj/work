@@ -63,3 +63,14 @@ var distractionHandler = function(){
 	}
 	
 };
+
+var moreDistractionHandler = function(){
+	postData('/allowInternet' , 'true', null, function(err, resultId, result){
+		if(err){
+			alert(err);
+		}
+		else {
+			window.location.reload();
+		}
+	});
+};
