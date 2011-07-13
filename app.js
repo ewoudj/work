@@ -16,32 +16,32 @@ var refusedDomains = '';
 /*
  * From npm/lib/utils/graceful-fs.js
  */
-var timeout = 0;
-
-Object.keys(fs).forEach(function (i) {
-	exports[i] = (typeof fs[i] !== "function") ? fs[i]
-    	: (i.match(/^[A-Z]|^create|Sync$/)) ? function () {
-    		return fs[i].apply(fs, arguments);
-         }
-       : graceful(fs[i]);
-});
-
-function graceful (fn) { return function GRACEFUL () {
-  var args = Array.prototype.slice.call(arguments)
-    , cb_ = args.pop();
-  args.push(cb);
-  function cb (er) {
-    if (er && er.message.match(/^EMFILE, Too many open files/)) {
-      setTimeout(function () {
-        GRACEFUL.apply(fs, args);
-      }, timeout ++);
-      return;
-    }
-    timer = 0;
-    cb_.apply(null, arguments);
-  }
-  fn.apply(fs, args);
-};};
+//var timeout = 0;
+//
+//Object.keys(fs).forEach(function (i) {
+//	exports[i] = (typeof fs[i] !== "function") ? fs[i]
+//    	: (i.match(/^[A-Z]|^create|Sync$/)) ? function () {
+//    		return fs[i].apply(fs, arguments);
+//         }
+//       : graceful(fs[i]);
+//});
+//
+//function graceful (fn) { return function GRACEFUL () {
+//  var args = Array.prototype.slice.call(arguments)
+//    , cb_ = args.pop();
+//  args.push(cb);
+//  function cb (er) {
+//    if (er && er.message.match(/^EMFILE, Too many open files/)) {
+//      setTimeout(function () {
+//        GRACEFUL.apply(fs, args);
+//      }, timeout ++);
+//      return;
+//    }
+//    timer = 0;
+//    cb_.apply(null, arguments);
+//  }
+//  fn.apply(fs, args);
+//};};
 
 /*
  * Make sure the user settings folder exists
@@ -62,9 +62,14 @@ var getConfig = function(callback){
 	if(!userConfig){
 		fs.readFile(configFilePath, function(err, data){
 			if(data){
-				userConfig = JSON.parse(data);
+				try{
+					userConfig = JSON.parse(data);
+				}
+				catch(parseException){
+					// The data is lost!
+				}
 			}
-			else {
+			if(!userConfig) {
 				userConfig = getDefaultConfig();
 			}
 			callback( addBehavior( userConfig ));
