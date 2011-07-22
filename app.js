@@ -1,5 +1,5 @@
 var proxyTamper = require('./lib/proxy-tamper');
-var control = require('./../control/lib/control').control;
+var control = require('controljs').control;
 var formidable = require('formidable');
 var nodestatic = require('node-static');
 var sanitizer = require('sanitizer');

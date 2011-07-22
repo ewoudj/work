@@ -16,10 +16,11 @@
   "dependencies": {
     "formidable@latest": "*",
     "node-static": "*",
-    "sanitizer": "*"
+    "sanitizer": "*",
+    "controljs": "*"
   },
   "licenses" : [ { "type" : "MIT"
-    , "url" : "http://github.com/ewoudj/work�/raw/master/LICENSE"
+    , "url" : "http://github.com/ewoudj/work/raw/master/LICENSE"
     }
   ]
 }
