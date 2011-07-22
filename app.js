@@ -56,6 +56,37 @@ catch(exception){
 }
 
 /*
+ * From: https://github.com/fjakobs/async.js/blob/master/lib/plugins/fs-node.js
+ * Minor modifications (semicolon and curly braces for all if and else)
+ */
+var copyfile = function(srcPath, destPath, force, callback) {
+    fs.stat(destPath, function(err, stat) {
+        if (stat && stat.isDirectory()){
+            destPath = Path.join(destPath, Path.basename(srcPath));
+        }
+        if (!force) {
+            Path.exists(destPath, function(exists) {
+                if (exists) {
+                    callback("destination file already exists!");
+                }
+                else {
+                    copy();
+                }
+            });
+        }
+        else {
+            copy();
+        }
+    });
+
+    function copy() {        
+        var reader = fs.createReadStream(srcPath);
+        var writer = fs.createWriteStream(destPath);
+        sys.pump(reader, writer, callback);
+    }
+};
+
+/*
  * Returns the user config, first tries in memory cache, then filesystem, then default config
  */
 var getConfig = function(callback){
@@ -64,6 +95,9 @@ var getConfig = function(callback){
 			if(data){
 				try{
 					userConfig = JSON.parse(data);
+					// If the config of the file was successfully read
+					// we create a backup of the file
+					copyFile(configFilePath, configFilePath + '.bak', true, function(){});
 				}
 				catch(parseException){
 					// The data is lost!
@@ -112,6 +146,9 @@ var addBehavior = function(value){
 			allowAllInternetAccess = false;
 			allowTimeOut = null;
 		}, 30000);
+	};
+	value.refusedDomains = function(value){
+		refusedDomains = value;
 	};
 	return value;
 };
@@ -276,7 +313,7 @@ var renderInterface = function(request, config){
 						createInputControls('All tasks:', config.tasks, 'tasks'),
 						createInputControls('Random Motivation:', config.motivation, 'motivation'),
 						createInputControls('Exempt domains:', config.exemptDomains, 'exemptDomains'),
-						createInputControls('Recently refused domains:', refusedDomains, 'refusedDomains', true),
+						createInputControls('Recently refused domains:', refusedDomains, 'refusedDomains'),
 						{tag: 'button', controlValue: 'Allow 30 seconds of internet access', attributes:{id: 'allowInternetButton', "class":'distractionButton', onclick: 'moreDistractionHandler()'}}
 					]}
 					

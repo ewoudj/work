@@ -48,6 +48,7 @@ var loadHandler = function(){
 	});
 	watchControl( document.getElementById('motivation') );
 	watchControl( document.getElementById('exemptDomains') );
+	watchControl( document.getElementById('refusedDomains') );
 };
 
 var distractionHandler = function(){
